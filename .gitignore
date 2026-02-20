@@ -1,0 +1,14 @@
+# Ignore the old PHP reference folders
+*php*/
+old-version/
+backup-api/
+
+# Standard Python ignores
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# Postgres/OS junk
+.DS_Store
+*.log
