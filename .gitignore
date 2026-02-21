@@ -1,14 +1,17 @@
-# Ignore the old PHP reference folders
+# my-backend .gitignore
+
+# 1. Ignore PHP (from your old project)
 *php*/
 old-version/
-backup-api/
 
-# Standard Python ignores
-__pycache__/
+# 2. Ignore Python environment and cache
+**/.venv/
+**/__pycache__/
 *.py[cod]
-venv/
+
+# 3. Ignore Postgres/Environment logs
+*.log
 .env
 
-# Postgres/OS junk
+# 4. OS files
 .DS_Store
-*.log
