@@ -1,0 +1,1 @@
+COMMENT ON TABLE aaaahf_admin_global_ids IS 'Global shared ID registry for all systems and pools.';

@@ -1,0 +1,1 @@
+-- no extra indexes for aaaahf_admin_global_ids (yet)

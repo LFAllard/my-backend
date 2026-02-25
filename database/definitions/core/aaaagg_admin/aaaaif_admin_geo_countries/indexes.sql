@@ -1,0 +1,1 @@
+-- no extra indexes for aaaaif_admin_geo_countries (yet)
