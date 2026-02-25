@@ -1,0 +1,52 @@
+# ==============================================================================
+# DATABASE BUILD MANIFEST
+# Execution order is strictly top-to-bottom. Do not alphabetize.
+# ==============================================================================
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 1. SHARED FOUNDATION (Extensions, Types, Global Functions)
+# ──────────────────────────────────────────────────────────────────────────────
+definitions/shared/extensions.sql
+definitions/shared/types.sql
+definitions/shared/functions.sql
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 2. CORE AUTHENTICATION & IDENTITY (aaaaff_auth)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# 2.1 Identity State Machine
+definitions/core/aaaaff_auth/aaaaff_users/table.sql
+definitions/core/aaaaff_auth/aaaaff_users/indexes.sql
+definitions/core/aaaaff_auth/aaaaff_users/policies.sql
+definitions/core/aaaaff_auth/aaaaff_users/comments.sql
+
+# 2.2 Contact Vault (Email Lookup)
+definitions/core/aaaaff_auth/aaaafm_email_lookup/table.sql
+definitions/core/aaaaff_auth/aaaafm_email_lookup/indexes.sql
+definitions/core/aaaaff_auth/aaaafm_email_lookup/policies.sql
+definitions/core/aaaaff_auth/aaaafm_email_lookup/functions.sql
+definitions/core/aaaaff_auth/aaaafm_email_lookup/comments.sql
+
+# 2.3 PII Vault (Profile Data)
+definitions/core/aaaaff_auth/aaaafp_user_core_data/table.sql
+definitions/core/aaaaff_auth/aaaafp_user_core_data/indexes.sql
+definitions/core/aaaaff_auth/aaaafp_user_core_data/policies.sql
+definitions/core/aaaaff_auth/aaaafp_user_core_data/functions.sql
+definitions/core/aaaaff_auth/aaaafp_user_core_data/comments.sql
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 3. CORE AUTHORIZATION / RBAC
+# ──────────────────────────────────────────────────────────────────────────────
+
+# 3.1 Role Definitions
+definitions/core/aaaaff_auth/aaaafs_role_definitions/table.sql
+definitions/core/aaaaff_auth/aaaafs_role_definitions/indexes.sql
+definitions/core/aaaaff_auth/aaaafs_role_definitions/policies.sql
+definitions/core/aaaaff_auth/aaaafs_role_definitions/functions.sql
+definitions/core/aaaaff_auth/aaaafs_role_definitions/comments.sql
+
+# 3.2 Role Assignments (Junction Table)
+definitions/core/aaaaff_auth/aaaaft_roles/table.sql
+definitions/core/aaaaff_auth/aaaaft_roles/indexes.sql
+definitions/core/aaaaff_auth/aaaaft_roles/policies.sql
+definitions/core/aaaaff_auth/aaaaft_roles/comments.sql
