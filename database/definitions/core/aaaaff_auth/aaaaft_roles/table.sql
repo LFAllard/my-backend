@@ -1,6 +1,6 @@
--- database/definitions/core/aaaaff_auth/aaaaft_user_roles/table.sql
+-- database/definitions/core/aaaaff_auth/aaaaft_roles/table.sql
 
-CREATE TABLE aaaaft_user_roles (
+CREATE TABLE aaaaft_roles (
     user_id BIGINT NOT NULL REFERENCES aaaaff_users(id) ON DELETE CASCADE,
     role_key VARCHAR(50) NOT NULL REFERENCES aaaafs_role_definitions(role_key) ON UPDATE CASCADE ON DELETE CASCADE,
     
