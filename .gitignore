@@ -5,6 +5,7 @@
 old-version/
 
 # 2. Ignore Python environment and cache
+**/venv/
 **/.venv/
 **/__pycache__/
 *.py[cod]
@@ -15,3 +16,6 @@ old-version/
 
 # 4. OS files
 .DS_Store
+
+# 5. Supabase local config
+supabase/.temp/

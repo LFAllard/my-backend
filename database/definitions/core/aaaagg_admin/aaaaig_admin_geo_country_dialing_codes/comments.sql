@@ -1,0 +1,1 @@
+-- no comments for aaaaig_admin_geo_country_dialing_codes (yet)
