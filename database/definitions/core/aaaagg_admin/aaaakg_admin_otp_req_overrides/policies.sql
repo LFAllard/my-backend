@@ -1,18 +1,13 @@
--- backend/database/definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/policies.sql
--- RLS: deny frontend access to overrides; service_role bypasses RLS
+-- database/definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/policies.sql
 
-alter table aaaakg_admin_otp_req_overrides enable row level security;
+-- Enable Row Level Security
+ALTER TABLE aaaakg_admin_otp_req_overrides ENABLE ROW LEVEL SECURITY;
 
--- Clean up any prior policy names (idempotent)
-drop policy if exists deny_otp_overrides_frontend on aaaakg_admin_otp_req_overrides;
-
--- Block all access for Supabase client roles
-create policy deny_otp_overrides_frontend
-  on aaaakg_admin_otp_req_overrides
-  for all
-  to anon, authenticated
-  using (false);
-
-comment on policy deny_otp_overrides_frontend
-  on aaaakg_admin_otp_req_overrides
-  is 'Prevents frontend roles (anon, authenticated) from accessing OTP rate-limit overrides. Only backend service_role can access.';
+-- Strict Frontend Lockdown
+-- Access is strictly restricted to the service_role (Python backend).
+-- All frontend access via anon or authenticated roles is denied.
+CREATE POLICY "Deny all access to admin otp req overrides"
+ON aaaakg_admin_otp_req_overrides
+FOR ALL
+TO anon, authenticated
+USING (false);

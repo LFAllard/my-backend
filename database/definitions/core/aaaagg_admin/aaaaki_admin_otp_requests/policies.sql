@@ -1,16 +1,13 @@
--- backend/database/definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/policies.sql
--- RLS: this is admin-only telemetry; never expose to frontend roles.
+-- database/definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/policies.sql
 
-alter table aaaaki_admin_otp_requests enable row level security;
+-- Enable Row Level Security
+ALTER TABLE aaaaki_admin_otp_requests ENABLE ROW LEVEL SECURITY;
 
-drop policy if exists deny_otp_requests_frontend on aaaaki_admin_otp_requests;
-
-create policy deny_otp_requests_frontend
-  on aaaaki_admin_otp_requests
-  for all
-  to anon, authenticated
-  using (false);
-
-comment on policy deny_otp_requests_frontend
-  on aaaaki_admin_otp_requests
-  is 'Blocks client roles from accessing OTP request ledger; backend service_role only.';
+-- Strict Frontend Lockdown
+-- Access is strictly restricted to the service_role (Python backend).
+-- All frontend access via anon or authenticated roles is denied.
+CREATE POLICY "Deny all access to admin otp requests"
+ON aaaaki_admin_otp_requests
+FOR ALL
+TO anon, authenticated
+USING (false);

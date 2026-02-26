@@ -1,26 +1,20 @@
--- backend/database/definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/indexes.sql
--- Lookup and analytics indexes (avoid now() in predicates)
+-- database/definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/indexes.sql
 
--- Recent-by-email for throttling/analytics
-create index if not exists otp_req_email_recent_idx
-  on aaaaki_admin_otp_requests (email_hmac, created_at desc);
+-- Fast lookups for rate-limiting and analytics (Recent-by-email)
+CREATE INDEX idx_aaaaki_otp_req_email_recent
+ON aaaaki_admin_otp_requests (email_hmac, created_at DESC);
 
--- Recent-by-device
-create index if not exists otp_req_device_recent_idx
-  on aaaaki_admin_otp_requests (device_id_hmac, created_at desc);
+-- Fast lookups for rate-limiting and analytics (Recent-by-device)
+CREATE INDEX idx_aaaaki_otp_req_device_recent
+ON aaaaki_admin_otp_requests (device_id_hmac, created_at DESC);
 
--- Recent-by-ip
-create index if not exists otp_req_ip_recent_idx
-  on aaaaki_admin_otp_requests (ip, created_at desc);
+-- Fast lookups for rate-limiting and analytics (Recent-by-ip)
+CREATE INDEX idx_aaaaki_otp_req_ip_recent
+ON aaaaki_admin_otp_requests (ip, created_at DESC);
 
--- Active OTP lookup for verify (filter by expires_at > now() and purpose at query time)
--- used_at IS NULL is immutable; expires_at > now() and (optional) action filter
--- must be applied in the WHERE clause of the verification query.
-drop index if exists otp_req_active_candidate_idx;
-
-create index if not exists otp_req_active_candidate_idx
-  on aaaaki_admin_otp_requests (email_hmac, device_id_hmac, purpose, expires_at desc)
-  where used_at is null and code_hash is not null;
-
-comment on index otp_req_active_candidate_idx is
-'Speeds up verification: latest unused OTP rows per (email, device, purpose). Apply expires_at > now() and any action filter in WHERE.';
+-- Active OTP lookup for verification
+-- AI CONTEXT: Partial index keeps the tree tiny. Time filtering (expires_at > NOW())
+-- must be applied at query time. 
+CREATE INDEX idx_aaaaki_otp_req_active_candidate
+ON aaaaki_admin_otp_requests (email_hmac, device_id_hmac, purpose, expires_at DESC)
+WHERE used_at IS NULL AND code_hash IS NOT NULL;
