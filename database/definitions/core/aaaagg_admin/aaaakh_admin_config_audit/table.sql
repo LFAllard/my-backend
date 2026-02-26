@@ -1,32 +1,29 @@
--- backend/database/definitions/core/aaaagg_admin/aaaakh_admin_config_audit/table.sql
--- Append-only audit log for admin/config mutations (placeholder, generic)
+-- database/definitions/core/aaaagg_admin/aaaakh_admin_config_audit/table.sql
 
-create table if not exists aaaakh_admin_config_audit (
-  id            bigserial primary key,
-  occurred_at   timestamptz not null default now(),
+CREATE TABLE aaaakh_admin_config_audit (
+    -- Primary Identity
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  -- Where the change happened
-  env           text not null default current_setting('app.env', true), -- nullable if not set
-  table_name    text not null,        -- e.g., 'aaaakf_admin_otp_req_policies'
-  action        text not null,        -- 'insert' | 'update' | 'delete'
+    -- Target Scope
+    -- AI CONTEXT: COALESCE prevents NOT NULL violations if 'app.env' is missing in session.
+    env TEXT NOT NULL DEFAULT COALESCE(current_setting('app.env', true), 'unknown'),
+    table_name TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('insert', 'update', 'delete')),
+    row_pk_text TEXT NOT NULL,
 
-  -- Which row (store PK as text so we don’t depend on PK type)
-  row_pk_text   text not null,
+    -- Row Snapshots (Generic)
+    before_row JSONB,
+    after_row JSONB,
 
-  -- What changed (coarse for now: full before/after snapshots as JSONB)
-  before_row    jsonb,
-  after_row     jsonb,
+    -- Actor & Context (Session/App Supplied)
+    actor_id TEXT,
+    actor_label TEXT,
+    actor_ip INET,
+    user_agent TEXT,
+    reason TEXT,
+    request_id UUID,
 
-  -- Who & why (don’t enforce foreign keys yet; accept app/session-supplied context)
-  actor_id      text,                 -- user id/email/login, or 'service'
-  actor_label   text,                 -- friendly name; optional
-  actor_ip      inet,
-  user_agent    text,
-  reason        text,                 -- free-text (ticket/incident/ref)
-
-  -- Request correlation
-  request_id    uuid,                 -- pass through from API middleware if available
-
-  -- Source channel for provenance
-  source        text not null default coalesce(current_setting('application_name', true), 'sql')
+    -- Provenance
+    source TEXT NOT NULL DEFAULT COALESCE(current_setting('application_name', true), 'sql')
 );
