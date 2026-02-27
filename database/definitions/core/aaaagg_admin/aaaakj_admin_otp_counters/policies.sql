@@ -1,14 +1,13 @@
--- backend/database/definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/policies.sql
--- Deny frontend; backend service_role bypasses RLS.
+-- database/definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/policies.sql
 
-alter table aaaakj_admin_otp_counters enable row level security;
+-- Enable Row Level Security
+ALTER TABLE aaaakj_admin_otp_counters ENABLE ROW LEVEL SECURITY;
 
-drop policy if exists deny_otp_counters_frontend on aaaakj_admin_otp_counters;
-create policy deny_otp_counters_frontend
-  on aaaakj_admin_otp_counters
-  for all to anon, authenticated
-  using (false);
-
-comment on policy deny_otp_counters_frontend
-  on aaaakj_admin_otp_counters
-  is 'Blocks client roles from viewing/mutating rate-limit counters.';
+-- Strict Frontend Lockdown
+-- Access is strictly restricted to the service_role (Python backend).
+-- All frontend access via anon or authenticated roles is denied.
+CREATE POLICY "Deny all access to admin otp counters"
+ON aaaakj_admin_otp_counters
+FOR ALL
+TO anon, authenticated
+USING (false);

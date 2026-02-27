@@ -1,30 +1,22 @@
--- backend/database/definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/policies.sql
+-- database/definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/policies.sql
 
--- Enable RLS to ensure the gate is locked by default
+-- Enable Row Level Security
 ALTER TABLE aaaakl_admin_registration_policy ENABLE ROW LEVEL SECURITY;
 
--- 1. DROP existing for idempotency
-DROP POLICY IF EXISTS "Deny all frontend access to registration policy" ON aaaakl_admin_registration_policy;
-
--- 2. HARD WALL: Strictly deny all standard frontend access (Anon & Authenticated)
--- Frontend users should not even know the specific configuration of these switches.
+-- 1. Strict Frontend Lockdown
+-- All frontend access via anon or authenticated roles is explicitly denied.
 CREATE POLICY "Deny all frontend access to registration policy"
-  ON aaaakl_admin_registration_policy
-  FOR ALL
-  TO anon, authenticated
-  USING (false)
-  WITH CHECK (false);
+ON aaaakl_admin_registration_policy
+FOR ALL
+TO anon, authenticated
+USING (false)
+WITH CHECK (false);
 
--- 3. SYSTEM ACCESS: Explicitly permit service_role (Internal/Admin APIs)
--- This ensures the Backend OtpService can read the switches to enforce admission.
-DROP POLICY IF EXISTS "Allow service_role full access to registration policy" ON aaaakl_admin_registration_policy;
-
+-- 2. Explicit System Access
+-- Explicitly permit the Python backend (service_role) to read and write.
 CREATE POLICY "Allow service_role full access to registration policy"
-  ON aaaakl_admin_registration_policy
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
-COMMENT ON POLICY "Deny all frontend access to registration policy" 
-  ON aaaakl_admin_registration_policy IS 'Only the backend service_role can read the policy to enforce it, or update it via Admin APIs.';
+ON aaaakl_admin_registration_policy
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
