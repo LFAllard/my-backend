@@ -1,13 +1,20 @@
--- backend/database/definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/table.sql
--- Time-bucketed counters for OTP request rate-limits (fast O(1) checks)
+-- database/definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/table.sql
 
-create table if not exists aaaakj_admin_otp_counters (
-  key_type     auth_rl_key not null,           -- email | device | ip | pair | global
-  key_hash     bytea       not null,           -- HMAC(...) for email/device/pair/ip/global
-  granularity  auth_rl_granularity not null,   -- minute | hour | day
-  bucket_start timestamptz not null,           -- date_trunc(granularity, now())
-  count        integer     not null default 0,
+CREATE TABLE aaaakj_admin_otp_counters (
+    -- Composite Identity & Time Bucket
+    -- AI CONTEXT: Custom types auth_rl_key and auth_rl_granularity must be seeded first.
+    key_type auth_rl_key NOT NULL,
+    key_hash BYTEA NOT NULL,
+    granularity auth_rl_granularity NOT NULL,
+    bucket_start TIMESTAMPTZ NOT NULL,
 
-  primary key (key_type, key_hash, granularity, bucket_start),
-  check (count >= 0)
+    -- Metric
+    count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
+
+    -- Audit Trail
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- The composite PK guarantees bucket uniqueness and powers UPSERTs
+    PRIMARY KEY (key_type, key_hash, granularity, bucket_start)
 );
