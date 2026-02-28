@@ -50,3 +50,58 @@ definitions/core/aaaaff_auth/aaaaft_roles/table.sql
 definitions/core/aaaaff_auth/aaaaft_roles/indexes.sql
 definitions/core/aaaaff_auth/aaaaft_roles/policies.sql
 definitions/core/aaaaff_auth/aaaaft_roles/comments.sql
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. CORE ADMINISTRATION (aaaagg_admin)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# 4.1 Audit & History Ledgers
+# Must load first so audit triggers are available for subsequent tables.
+definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/table.sql
+definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/indexes.sql
+definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/policies.sql
+definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/functions.sql
+definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/comments.sql
+
+definitions/core/aaaagg_admin/aaaakh_admin_config_audit/table.sql
+definitions/core/aaaagg_admin/aaaakh_admin_config_audit/indexes.sql
+definitions/core/aaaagg_admin/aaaakh_admin_config_audit/policies.sql
+definitions/core/aaaagg_admin/aaaakh_admin_config_audit/functions.sql
+definitions/core/aaaagg_admin/aaaakh_admin_config_audit/comments.sql
+
+# 4.2 Admin Authentication (OTP & Rate Limits)
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/table.sql
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/indexes.sql
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/policies.sql
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/functions.sql
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/cron.sql
+definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/comments.sql
+
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/table.sql
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/indexes.sql
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/policies.sql
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/functions.sql
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/cron.sql
+definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/comments.sql
+
+# 4.3 Growth & Registration Gates
+definitions/core/aaaagg_admin/aaaakk_admin_invitations/table.sql
+definitions/core/aaaagg_admin/aaaakk_admin_invitations/indexes.sql
+definitions/core/aaaagg_admin/aaaakk_admin_invitations/policies.sql
+definitions/core/aaaagg_admin/aaaakk_admin_invitations/functions.sql
+definitions/core/aaaagg_admin/aaaakk_admin_invitations/comments.sql
+
+definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/table.sql
+definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/indexes.sql
+definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/policies.sql
+definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/functions.sql
+definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/comments.sql
+
+# 4.4 User Entitlements (Consolidated Cleanup)
+# Loads last to register the combined cron job for aaaakk and aaaakm.
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/table.sql
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/indexes.sql
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/policies.sql
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/functions.sql
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/cron.sql
+definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/comments.sql
