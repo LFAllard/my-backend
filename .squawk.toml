@@ -1,0 +1,2 @@
+[squawk]
+exclude = ["prefer-robust-stmts"]
