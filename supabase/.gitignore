@@ -2,7 +2,17 @@
 .branches
 .temp
 
+# Generated seed file (contains computed HMAC/encryption values — regenerate with
+# python database/seeds/dev/generate_personas.py before running supabase db reset)
+seed.sql
+
 # dotenvx
 .env.keys
 .env.local
 .env.*.local
+
+# privatenotes
+privatenotes.md
+
+# legacy seeds
+/legacy_seeds/

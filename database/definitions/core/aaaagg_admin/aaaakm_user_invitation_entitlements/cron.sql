@@ -4,20 +4,8 @@
 -- Here we combine the pruning of both invitations (aaaakk) and 
 -- invitation entitlements (aaaakm) into a unified maintenance window.
 
-DO $$
-BEGIN
-    -- Unschedule the job if it already exists to ensure a clean slate
-    -- AI CONTEXT: Idempotency is required here because the cron schema 
-    -- often survives a standard Nuke and Pave schema drop.
-    PERFORM cron.unschedule('aaaak_admin_cleanup_daily');
-EXCEPTION
-    WHEN undefined_object THEN
-        -- Ignore if the job does not exist yet
-        NULL;
-    WHEN OTHERS THEN
-        -- Ignore other potential pg_cron errors on missing jobs
-        NULL;
-END $$;
+-- Unschedule if already registered (cron schema survives nuke-and-pave; no-ops if job absent)
+SELECT cron.unschedule(jobname) FROM cron.job WHERE jobname = 'aaaak_admin_cleanup_daily';
 
 -- Schedule: Every night at 02:20 UTC
 -- Runs both modules' cleanup routines sequentially.
