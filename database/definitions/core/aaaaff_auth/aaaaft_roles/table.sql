@@ -2,10 +2,10 @@
 
 CREATE TABLE aaaaft_roles (
     user_id BIGINT NOT NULL REFERENCES aaaaff_users(id) ON DELETE CASCADE,
-    role_key VARCHAR(50) NOT NULL REFERENCES aaaafs_role_definitions(role_key) ON UPDATE CASCADE ON DELETE CASCADE,
-    
+    role_key TEXT NOT NULL REFERENCES aaaafs_role_definitions(role_key) ON UPDATE CASCADE ON DELETE CASCADE,
+
     -- 'global' for site-wide, or e.g., 'forum:123' for specific area access
-    scope_key VARCHAR(100) NOT NULL DEFAULT 'global',
+    scope_key TEXT NOT NULL DEFAULT 'global',
     
     -- Audit trail
     granted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

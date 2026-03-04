@@ -7,7 +7,7 @@ CREATE TABLE aaaakk_admin_invitations (
     -- PHASE 1: Transient (PII / Codes)
     -- AI CONTEXT: Nullified via function once the user registers.
     invited_email_hmac BYTEA,
-    invite_code VARCHAR(16),
+    invite_code TEXT,
 
     -- PHASE 2: Permanent (Identity Lineage)
     -- AI CONTEXT: Assuming core auth table is aaaaff_users based on earlier schema.
@@ -19,7 +19,7 @@ CREATE TABLE aaaakk_admin_invitations (
     initial_free_months SMALLINT NOT NULL DEFAULT 12 CHECK (initial_free_months BETWEEN 0 AND 48),
 
     -- Administrative Grouping & Notes
-    campaign_identifier VARCHAR(64), 
+    campaign_identifier TEXT,
     admin_comment TEXT,
 
     -- Usage & Expiry

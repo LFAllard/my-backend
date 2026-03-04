@@ -26,4 +26,4 @@ EXECUTE FUNCTION aaaaki_admin_touch_updated_at();
 CREATE TRIGGER tr_aaaakl_admin_registration_policy_audit
 AFTER UPDATE ON aaaakl_admin_registration_policy
 FOR EACH ROW
-EXECUTE FUNCTION aaaakh_admin_log_row_change('aaaakl_admin_registration_policy');
+EXECUTE FUNCTION aaaakh_admin_log_row_change();

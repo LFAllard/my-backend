@@ -11,7 +11,7 @@ CREATE TABLE aaaakl_admin_registration_policy (
     pathway_open_for_all BOOLEAN NOT NULL DEFAULT false,
     
     -- Quantitative & Emergency Controls
-    global_max_users INT CHECK (global_max_users >= 0),
+    global_max_users BIGINT CHECK (global_max_users >= 0),
     emergency_lockdown BOOLEAN NOT NULL DEFAULT false,
     
     -- Contextual Data

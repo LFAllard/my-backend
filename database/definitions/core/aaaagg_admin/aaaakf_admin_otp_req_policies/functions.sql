@@ -1,8 +1,6 @@
 -- database/definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/functions.sql
 
 -- Apply the shared utility trigger to automatically update 'updated_at'
-DROP TRIGGER IF EXISTS tr_aaaakf_admin_otp_req_policies_updated_at ON aaaakf_admin_otp_req_policies;
-
 CREATE TRIGGER tr_aaaakf_admin_otp_req_policies_updated_at
 BEFORE UPDATE ON aaaakf_admin_otp_req_policies
 FOR EACH ROW

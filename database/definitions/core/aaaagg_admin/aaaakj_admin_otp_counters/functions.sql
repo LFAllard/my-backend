@@ -244,4 +244,26 @@ BEGIN
             v_http := 429;
         ELSE
             v_decision := 'soft_throttle';
-            v_http := 202
+            v_http := 202;
+        END IF;
+    END IF;
+
+    -- 5) RETURN RESULT
+    RETURN QUERY SELECT
+        v_allow,
+        v_decision,
+        v_http,
+        v_violations,
+        v_cooldown,
+        r_pair.minute_count,
+        v_email_5m, r_email.hour_count, r_email.day_count,
+        v_device_5m, r_device.hour_count, r_device.day_count,
+        v_ip_5m, r_ip.hour_count, r_ip.day_count,
+        r_global.minute_count, r_global.hour_count,
+        v_lim_pair_60s,
+        v_lim_email_5m, v_lim_email_1h, v_lim_email_24h,
+        v_lim_device_5m, v_lim_device_1h, v_lim_device_24h,
+        v_lim_ip_5m, v_lim_ip_1h, v_lim_ip_24h,
+        v_lim_global_60s, v_lim_global_1h;
+END;
+$$;

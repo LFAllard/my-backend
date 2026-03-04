@@ -55,21 +55,76 @@ definitions/core/aaaaff_auth/aaaaft_roles/comments.sql
 # 4. CORE ADMINISTRATION (aaaagg_admin)
 # ──────────────────────────────────────────────────────────────────────────────
 
-# 4.1 Audit & History Ledgers
-# Must load first so audit triggers are available for subsequent tables.
-definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/table.sql
-definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/indexes.sql
-definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/policies.sql
-definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/functions.sql
-definitions/core/aaaagg_admin/aaaagg_admin_audit_logs/comments.sql
+# 4.1 Reference Data — Languages
+definitions/core/aaaagg_admin/aaaagg_admin_langs/table.sql
+definitions/core/aaaagg_admin/aaaagg_admin_langs/indexes.sql
+definitions/core/aaaagg_admin/aaaagg_admin_langs/policies.sql
+definitions/core/aaaagg_admin/aaaagg_admin_langs/comments.sql
 
+# 4.2 Reference Data — Global ID Registry
+definitions/core/aaaagg_admin/aaaahf_admin_global_ids/table.sql
+definitions/core/aaaagg_admin/aaaahf_admin_global_ids/indexes.sql
+definitions/core/aaaagg_admin/aaaahf_admin_global_ids/policies.sql
+definitions/core/aaaagg_admin/aaaahf_admin_global_ids/comments.sql
+
+# 4.3 Systems & Pools (depend on langs and global IDs)
+definitions/core/aaaagg_admin/aaaahg_admin_systems/table.sql
+definitions/core/aaaagg_admin/aaaahg_admin_systems/indexes.sql
+definitions/core/aaaagg_admin/aaaahg_admin_systems/policies.sql
+definitions/core/aaaagg_admin/aaaahg_admin_systems/comments.sql
+
+definitions/core/aaaagg_admin/aaaahh_admin_pools/table.sql
+definitions/core/aaaagg_admin/aaaahh_admin_pools/indexes.sql
+definitions/core/aaaagg_admin/aaaahh_admin_pools/policies.sql
+definitions/core/aaaagg_admin/aaaahh_admin_pools/comments.sql
+
+# 4.4 Geographic Reference Data (countries first, then dependent tables)
+definitions/core/aaaagg_admin/aaaaif_admin_geo_countries/table.sql
+definitions/core/aaaagg_admin/aaaaif_admin_geo_countries/indexes.sql
+definitions/core/aaaagg_admin/aaaaif_admin_geo_countries/policies.sql
+definitions/core/aaaagg_admin/aaaaif_admin_geo_countries/comments.sql
+
+definitions/core/aaaagg_admin/aaaaig_admin_geo_country_dialing_codes/table.sql
+definitions/core/aaaagg_admin/aaaaig_admin_geo_country_dialing_codes/indexes.sql
+definitions/core/aaaagg_admin/aaaaig_admin_geo_country_dialing_codes/policies.sql
+definitions/core/aaaagg_admin/aaaaig_admin_geo_country_dialing_codes/comments.sql
+
+definitions/core/aaaagg_admin/aaaaih_admin_geo_phone_number_lengths/table.sql
+definitions/core/aaaagg_admin/aaaaih_admin_geo_phone_number_lengths/indexes.sql
+definitions/core/aaaagg_admin/aaaaih_admin_geo_phone_number_lengths/policies.sql
+definitions/core/aaaagg_admin/aaaaih_admin_geo_phone_number_lengths/comments.sql
+
+definitions/core/aaaagg_admin/aaaaij_admin_geo_age_limits/table.sql
+definitions/core/aaaagg_admin/aaaaij_admin_geo_age_limits/indexes.sql
+definitions/core/aaaagg_admin/aaaaij_admin_geo_age_limits/policies.sql
+definitions/core/aaaagg_admin/aaaaij_admin_geo_age_limits/comments.sql
+
+# 4.5 Audit & History Ledger
+# Must load before aaaakl (which attaches an audit trigger to it).
 definitions/core/aaaagg_admin/aaaakh_admin_config_audit/table.sql
 definitions/core/aaaagg_admin/aaaakh_admin_config_audit/indexes.sql
 definitions/core/aaaagg_admin/aaaakh_admin_config_audit/policies.sql
 definitions/core/aaaagg_admin/aaaakh_admin_config_audit/functions.sql
 definitions/core/aaaagg_admin/aaaakh_admin_config_audit/comments.sql
 
-# 4.2 Admin Authentication (OTP & Rate Limits)
+# 4.6 OTP Rate Limit Policies & Overrides
+# ORDERING NOTE: aaaakf/functions.sql contains a LANGUAGE sql function that
+# references the aaaakg table at parse time. The aaaakg table (and its full
+# set) must therefore be loaded before aaaakf/functions.sql is executed.
+definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/table.sql
+definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/indexes.sql
+definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/policies.sql
+
+definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/table.sql
+definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/indexes.sql
+definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/policies.sql
+definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/functions.sql
+definitions/core/aaaagg_admin/aaaakg_admin_otp_req_overrides/comments.sql
+
+definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/functions.sql
+definitions/core/aaaagg_admin/aaaakf_admin_otp_req_policies/comments.sql
+
+# 4.7 OTP Authentication (Ledger & Rate-Limit Counters)
 definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/table.sql
 definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/indexes.sql
 definitions/core/aaaagg_admin/aaaaki_admin_otp_requests/policies.sql
@@ -84,7 +139,7 @@ definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/functions.sql
 definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/cron.sql
 definitions/core/aaaagg_admin/aaaakj_admin_otp_counters/comments.sql
 
-# 4.3 Growth & Registration Gates
+# 4.8 Growth & Registration Gates
 definitions/core/aaaagg_admin/aaaakk_admin_invitations/table.sql
 definitions/core/aaaagg_admin/aaaakk_admin_invitations/indexes.sql
 definitions/core/aaaagg_admin/aaaakk_admin_invitations/policies.sql
@@ -97,7 +152,7 @@ definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/policies.sql
 definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/functions.sql
 definitions/core/aaaagg_admin/aaaakl_admin_registration_policy/comments.sql
 
-# 4.4 User Entitlements (Consolidated Cleanup)
+# 4.9 User Entitlements (Consolidated Cleanup)
 # Loads last to register the combined cron job for aaaakk and aaaakm.
 definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/table.sql
 definitions/core/aaaagg_admin/aaaakm_user_invitation_entitlements/indexes.sql

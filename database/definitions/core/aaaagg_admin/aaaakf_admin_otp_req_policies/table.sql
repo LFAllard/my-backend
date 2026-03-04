@@ -5,7 +5,7 @@ CREATE TABLE aaaakf_admin_otp_req_policies (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
     -- Target Environment & Route Configuration
-    env TEXT NOT NULL CHECK (env IN ('production', 'staging', 'test')),
+    env TEXT NOT NULL CHECK (env IN ('production', 'staging', 'test', 'development')),
     route TEXT NOT NULL,
     platform TEXT NOT NULL DEFAULT '*' CHECK (platform IN ('ios', 'android', '*')),
     
