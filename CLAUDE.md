@@ -4,147 +4,95 @@
 
 **What:** Greenfield migration of a mobile app backend from PHP/Slim to Python.
 **Why:** "Sovereign Architecture" — full ownership of identity/auth with high security standards.
-**Phase:** Active rebuild. DB schema is near-stable; application layer is being built from scratch.
-**Base URL:** `https://my-app-2-6c18.onrender.com`
+**Phase:** Active rebuild. DB schema is near-stable; Python application layer is being built from scratch.
 **Stability:** Unstable. Prioritize async, type-safety, and performance in all decisions.
 
 ---
 
 ## 2. TECH STACK
 
-| Layer        | Choice                                | Notes                                      |
-|--------------|---------------------------------------|--------------------------------------------|
-| Language     | Python 3.11+                          | Type hints required everywhere             |
-| Framework    | FastAPI *(preferred)* or Litestar     | Must be async-first                        |
-| ORM/Driver   | SQLAlchemy (Async) *(preferred)* or Prisma Client Python | Existing schema must be respected — no renames |
-| Auth         | Custom OTP + JWT (HS256)              | Replaces `firebase/php-jwt`                |
-| Mail         | MailerSend API via `httpx`            |                                            |
-| Database     | PostgreSQL (Supabase-hosted)          | RLS enforced at app layer                  |
+| Layer      | Choice                                               | Notes                              |
+|------------|------------------------------------------------------|------------------------------------|
+| Language   | Python 3.11+                                         | Type hints required everywhere     |
+| Framework  | FastAPI                                              | Async-first                        |
+| ORM/Driver | SQLAlchemy (Async)                                   | Schema must be respected — no renames |
+| Auth       | Custom OTP + JWT (HS256)                             | Custom-built; no library adequate  |
+| Mail       | MailerSend API via `httpx`                           |                                    |
+| Database   | PostgreSQL (Supabase-hosted)                         | RLS enforced at app layer          |
 
 ---
 
-## 3. KEY DIRECTORIES & PURPOSES
+## 3. KEY DIRECTORIES
 
 ```
-src/
-└── app/
-    ├── core/
-    │   └── config.py         # Type-safe env vars (Pydantic Settings)
-    ├── db/
-    │   └── session.py        # Async DB session manager + RLS injection
-    ├── services/
-    │   └── auth.py           # OTP generation, JWT issuance, PII encryption
-    └── api/
-        └── v1/
-            └── endpoints/    # Route handlers (one file per domain)
+src/app/
+├── core/config.py          # Type-safe env vars (Pydantic Settings)
+├── db/session.py           # Async session manager + RLS injection
+├── services/auth.py        # OTP, JWT, PII encryption
+└── api/v1/endpoints/       # Route handlers (one file per domain)
 
 database/
-└── definitions/              # Source-of-truth SQL, organised by table
-    ├── core/
-    └── shared/
+├── definitions/            # Source-of-truth SQL — edit here, never in migrations
+│   └── core/
+└── seeds/
+    ├── prod/               # Static reference data (01–11, committed)
+    └── dev/generate_personas.py  # Generates supabase/seed.sql (gitignored)
 
-supabase/
-└── migrations/               # Assembled migration file (do not hand-edit)
+supabase/migrations/        # Assembled by build.sh — do not hand-edit
 
-tests/                        # Shell-script based curl tests
-test-output/                  # Auto-generated test results (gitignored)
+tests/                      # Shell-script curl tests
+test-output/                # Auto-generated (gitignored)
 ```
 
 ---
 
-## 4. CRITICAL ARCHITECTURE RULES
+## 4. NON-NEGOTIABLE RULES
 
-### RLS Enforcement (Non-negotiable)
-Every authenticated request **must** execute this at the start of the transaction:
+### RLS — must never be skipped
+Every authenticated request must execute this at the start of the transaction:
 ```sql
 SET LOCAL app.current_user_id = '<uid>';
 ```
-Failure to do this bypasses Row Level Security. Never skip it.
 
-### Database Table Names
-Do **not** rename or alias existing tables. Exact names must be preserved:
+### Table names — never rename or alias
+See `.claude/docs/database.md` for the full list.
 
-| Purpose             | Table Name                         |
-|---------------------|------------------------------------|
-| Users               | `aaaaff_ljus_users`                |
-| Email lookup (PII)  | `aaaafm_email_lookup`              |
-| OTP ledger          | `aaaaki_admin_otp_requests`        |
-| OTP rate limits     | `aaaakj_admin_otp_counters`        |
-| Invitations         | `aaaakk_admin_invitations`         |
-| Registration policy | `aaaakl_admin_registration_policy` |
+### PII discipline
+- Raw email is never stored. It is HMAC-hashed (blind index) and AES-256-GCM encrypted.
+- See `.claude/docs/database.md` for the encryption scheme and env vars.
+- Never log or expose raw PII.
 
-### PII Handling
-- Emails stored with HMAC/encryption in `aaaafm_email_lookup`
-- Never log or expose raw PII
+### Test scripts
+- Allowed tools: `grep`, `cut`, `awk`, `sed` — **no `jq`**
+- Always separate headers (`-D headers.txt`) from body (`body.txt`)
+- Output to: `test-output/<name>-<timestamp>/`
 
 ---
 
-## 5. BUILD & TEST COMMANDS
+## 5. COMMANDS
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Run dev server (FastAPI example)
+# Dev server
 uvicorn app.main:app --reload --port 8000
 
-# Run a test script
+# DB: build migration, lint, apply
+bash database/build.sh
+bash lint.sh
+python database/seeds/dev/generate_personas.py
+supabase db reset --linked
+
+# Run a test
 bash tests/auth/test_otp_request.sh
-
-# Test output lands in:
-# test-output/<test-name>-<timestamp>/
-#   headers.txt   (curl -D output)
-#   body.txt      (response body)
 ```
-
-### Test Script Rules
-- **Tools allowed:** `grep`, `cut`, `awk`, `sed` — **NO `jq`**
-- Always separate headers (`-D headers.txt`) from body (`body.txt`)
-- Output directory: `test-output/<n>-<timestamp>/`
 
 ---
 
-## 6. SQL LINTING WITH SQUAWK
+## 6. SPECIALIST DOCS
 
-### How the workflow fits together
-- SQL is authored in `database/definitions/` (one file per concern per table)
-- The migration is assembled by `build.sh` into `supabase/migrations/`
-- **Squawk lints the assembled migration file** — not the individual definition files
-- After linting and fixing, run `supabase db reset --linked` to apply
-
-### Running the linter
-```bash
-./lint.sh
-```
-Always run this after editing any definition file and before running `supabase db reset --linked`.
-
-### What Claude should do when running the linter
-1. Run `./lint.sh`
-2. Read every warning carefully
-3. Identify which definition file contains the offending SQL
-4. Fix the issue in the correct definition file (never directly in the migration)
-5. Report back with a clear summary: what warnings were found, which files were changed, what was changed, and why
-
-### Excluded rules
-Three rules are intentionally excluded. Reasons are documented inside `lint.sh`.
-Do not suppress additional warnings with inline `-- squawk:ignore` comments without
-explaining the reason to the user first.
-
-### Config note
-`.squawk.toml` exists in the project root but is not used — the installed version of
-Squawk does not reliably read it. Rules are passed via `--exclude` in `lint.sh` instead.
-
----
-
-## 7. ADDITIONAL DOCUMENTATION TO CHECK
-
-When working on specific areas, consult these files if they exist:
-
-| Area                  | File to Check                          |
-|-----------------------|----------------------------------------|
-| DB schema details     | `docs/schema.md` or Supabase dashboard |
-| Auth flow             | `docs/auth-flow.md`                    |
-| OTP policy rules      | `docs/otp-policy.md`                   |
-| API contract          | `docs/api-v1.md` or OpenAPI spec       |
-| Environment variables | `.env.example`                         |
-| Deployment config     | `render.yaml` or `docs/deploy.md`      |
+| Topic                         | File                          |
+|-------------------------------|-------------------------------|
+| DB schema, tables, workflow   | `.claude/docs/database.md`    |
+| API design, auth flow, env vars | `.claude/docs/api.md`       |
