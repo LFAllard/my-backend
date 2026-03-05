@@ -47,8 +47,9 @@ def load_env() -> dict[str, str]:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            if "=" in line:
-                key, _, value = line.partition("=")
+            sep = "=" if "=" in line else (":" if ":" in line else None)
+            if sep:
+                key, _, value = line.partition(sep)
                 env[key.strip()] = value.strip().strip("\"'")
     env.update(os.environ)  # environment variables take precedence
     return env
